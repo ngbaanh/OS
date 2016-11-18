@@ -1,0 +1,38 @@
+GROUP_ID = 123
+SECRET_KEY = 23dc56f33676401dae21b67081dd0312
+KHUEBUI_ID = f33e5b32-9247-4fa2-9cfd-8def9b3ba06a
+PERSISTED_FACE_ID = {
+		"persistedFaceId": "45e01c00-558c-4950-a4eb-00e9de6b7902"
+		"persistedFaceId": "c76c43d1-eba1-4077-aebf-c3cfdc627c03"
+		"persistedFaceId": "3e96c3a7-9898-4dd3-a482-d2225b60264a"
+
+	}
+
+Quang_DATA = {
+  		"personId": "3eb7eb1c-658f-4471-b5e4-be233328091b"
+}
+
+
+[
+  {
+    "faceId": "caae8dbe-22c7-4cae-83f9-a90e8eb4dff4",
+    "faceRectangle": {
+      "top": 28,
+      "left": 17,
+      "width": 38,
+      "height": 38
+    }
+  }
+]
+
+
+
+PHUNGLE = 
+{
+  "personId": "536ae7be-3e9d-4958-bd32-894481ce9dc1"
+}
+{
+
+  "persistedFaceId": "20a11c13-48e9-4829-a205-ebeacafea376"
+  "persistedFaceId": "0b7e3a7c-4f8b-4088-b21b-4ba230ad3fd8"
+}
