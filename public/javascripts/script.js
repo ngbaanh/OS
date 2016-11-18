@@ -1,9 +1,6 @@
 $.validator.addMethod('maxStrict', function (data, el, param) {
     return data < param;
 });
-//$.validator.addMethod('fileType', function(data, el, param){
-//    return (data === 'mp4') || (data === 'mov') || (data === 'wmv');
-//});
 $(function(){
     $('#reset').click(function(){
         if ($('#chooseFile').val() != ''){
@@ -11,30 +8,26 @@ $(function(){
         }
     });
     $('#chooseFile').bind('change', function(){
-        $('#fileSize').val(this.files[0].size/1024/1024);
-        var filename = $(this).val().split('\\').pop();
-        var extension = filename.split('.')[1];
-        if (extension === 'mp4' || extension === 'mov' || extension === 'wmv') {
-            
-        } else {
-            alert('You need to upload a video');
+        if (this.files[0].size/1024/1024 > 100){
+            alert('File size must less than 100MB');
             $('#chooseFile').val('');
+        } else {
+            var filename = $(this).val().split('\\').pop();
+            var extension = filename.split('.')[1];
+            if (extension === 'mp4' || extension === 'mov' || extension === 'wmv') {
+
+            } else {
+                alert('You need to upload a video');
+                $('#chooseFile').val('');
+            }
         }
     });
     $('#form-upload-file').validate({
         rules: {
-            chooseFile: 'required',
-            fileSize: {
-                maxStrict: 100
-            },
-            //fileType: 'fileType'
+            chooseFile: 'required'
         }, 
         messages: {
-            chooseFile: "Please choose file to use",
-            fileSize: {
-                maxStrict: "File size must less than 100MB"
-            },
-            //fileType: "You need to upload a video"
+            chooseFile: "Please choose file to use"
         },
         ignore: ':hidden:not("#fileSize, #fileType")',
         errorElement: "em",
