@@ -15,3 +15,9 @@
 #uploadFile {
     margin-top: 15px;
 }
+.btn.btn-success {
+    background-color: #24B786;
+}
+#reset {
+    margin-top: 15px;
+}
