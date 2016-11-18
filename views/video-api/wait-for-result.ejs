@@ -1,38 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSSample</title>
+    <title>Kết quả xử lí VideoAPI</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/bootstrap.min.js"></script>
 </head>
 <body>
-
+	<div class="container">
+		<h1 id="heading">Đang đợi kết quả</h1>
+		<p class="text text-muted" id="info">
+			<a href="/video-api/upload" class="btn btn-primary">Quay lại Upload form</a>
+			<a href="javascript:location.reload(true)" class="btn btn-success">Refresh kết quả</a>
+			<br>
+		</p>
+		<div class="well">
+			<pre id="result"></pre>
+			
+		</div>
+	</div>
 <script type="text/javascript">
     $(function() {
-        var params = {
-            // Request parameters
-        };
-      
         $.ajax({
-            url: "<%=apiURL%>?" + $.param(params),
+			type: 'GET',
+            url: "<%=operationLocation%>",
             beforeSend: function(xhrObj){
-                // Request headers
                 xhrObj.setRequestHeader("Content-Type","application/json");
                 xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=subKey%>");
             },
-            type: "POST",
-            // Request body
-            data: '{ "url": "<%=videoURL%>"}',
-        })
-        .done(function(data) {
-            waitForResult();
-        })
-        .fail(function() {
-            alert("error");
+			success: function(data) {
+				if (data.status == "Failed") {
+					alert('Thao tác thất bại! Không có kết quả');
+					window.location.replace('/video-api/upload');
+				} else if (data.status == 'Running') {
+					$('#heading').html('Đang xử lí video: ' + data.progress + '%');
+					setTimeout( function(){ location.reload(); }, 3000 );
+				} else if (data.status == "Succeeded") {
+					$('#heading').html('KẾT QUẢ');
+					$('#info').append('Gửi lúc: ' + data.createdDateTime + '<br>');
+					$('#info').append('Hoàn thành lúc: ' + data.lastActionDateTime + '<br>');
+					var jsonOutput = JSON.stringify(JSON.parse(data.processingResult),null,2);
+					$('#result').html(jsonOutput);//JSON.stringify(JSON.parse(data.processingResult))
+				}
+			},
+			fail: function() {
+				alert("error");
+			}
         });
     });
-	function waitForResult() {
-		
-	}
 </script>
 
 
