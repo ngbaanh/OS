@@ -26,6 +26,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.get('/', SiteController.homepage);
 app.get('/video-api/upload', ApiController.video_api_upload);
 app.get('/video-api/wait-for-result', ApiController.video_api_wait_for_result);
+app.get('/video-api/test', ApiController.sample_detection);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
