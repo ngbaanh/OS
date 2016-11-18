@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var videoApi = require('./routes/video-api');
 
 var app = express();
 
@@ -24,6 +25,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/video-api', videoApi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -40,7 +42,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error', {err:err});
 });
 
 module.exports = app;
