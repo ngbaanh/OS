@@ -1,8 +1,17 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.box.box-success {
+    border-top-color: #24B786;
+    
 }
-
-a {
-  color: #00B7FF;
+.box {
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+#uploadFile {
+    margin-top: 15px;
 }
