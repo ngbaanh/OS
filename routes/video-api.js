@@ -24,7 +24,7 @@ router.get('/wait-for-result', function(req, res, next) {
 			subKey: subKey
 		});
 	} else {
-		res.send('URL is not valid!');
+		res.send('Operation Location is not valid!');
 	}
 });
 

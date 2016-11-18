@@ -16,6 +16,7 @@
 			<h2>Upload Video File</h2>
 			<form id="FormFile" class="form form-horizontal" method="post" enctype="multipart/form-data">
 				<input type="file" class="form-control" value="Choose a file" accept="video/*">
+				<br>
 				<input type="submit" class="btn btn-success" value="Submit">
 			</form>
 		</div>
@@ -23,25 +24,28 @@
 		<div class="well">
 			<h2>Upload via URL</h2>
 			<form id="FormURL" class="form form-horizontal" method="post">
-				<input type="text" class="form-control" name="url" id="url" value="http://">
+				<input type="url" class="form-control" name="url" id="url" value="http://techslides.com/demos/sample-videos/small.mp4" required>
+				<br>
 				<input type="submit" class="btn btn-success" value="Submit">
 			</form>
 		</div>
 		
-		<div class="well" id="data">
-			
+		<div class="well" id="info">
 		</div>
 	</div>
 	
 <script type="text/javascript">
-	$(document).ready(function(){
+	$().ready(function() {
+		$('#data').html( $('#FormURL #url').val() );
+	});
+	
+	$(document).ready(function(){		
 		$( "#FormFile" ).submit(function( event ) {
 			alert( "Still in construction" );
 			event.preventDefault();
 		});
 		
 		$( "#FormURL" ).submit(function( event ) {
-			alert( "Handler for .submit() URL called." );
 			var params = {
 				// Request parameters
 			};
@@ -52,21 +56,17 @@
 					xhrObj.setRequestHeader("Content-Type","application/json");
 					xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=subKey%>");
 				},
-				type: "POST",
-				// Request body
-				data: '{ "url": "'+$('#url').val()+'"}',
-			})
-			.success(function(data) {
-				if (data.status == 'Succeeded') {
-					$('data').html('<pre>' +data.processingResult + '</pre>');
-				} else {
-					alert('Video is being processed. Need some coffee?');
-					window.location.replace("/video-api/wait-for-result");
+				type: 'POST',
+				data: '{ "url" : "'+ $('#FormURL #url').val() +'"}',
+				success: function(data, status, request) {
+					$('#info').append('Đang gửi dữ liệu...').delay(5000);
+					window.location.replace("/video-api/wait-for-result?operationLocation=" +request.getResponseHeader('Operation-Location'));
+				},
+				fail: function() {
+					alert("Lỗi! Coi lại dữ liệu");
 				}
-			})
-			.fail(function() {
-				alert("error");
 			});
+			event.preventDefault();
 		});
 	});
 </script>
