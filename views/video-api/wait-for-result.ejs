@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Kết quả xử lí VideoAPI</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="/javascripts/jquery.min.js"></script>
 	<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
     <script src="/javascripts/bootstrap.min.js"></script>
@@ -30,7 +30,10 @@
                 xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=subKey%>");
             },
 			success: function(data) {
-				if (data.status == "Failed") {
+				if (data.error) {
+					alert(data.error.code + ': ' + data.error.message);
+					window.location.replace('/video-api/upload');
+				} else if (data.status == "Failed") {
 					alert('Thao tác thất bại! Không có kết quả');
 					window.location.replace('/video-api/upload');
 				} else if (data.status == 'Running') {
@@ -42,6 +45,12 @@
 					$('#info').append('Hoàn thành lúc: ' + data.lastActionDateTime + '<br>');
 					var jsonOutput = JSON.stringify(JSON.parse(data.processingResult),null,2);
 					$('#result').html(jsonOutput);//JSON.stringify(JSON.parse(data.processingResult))
+				} else if (data.status == 'Not Started') {
+					$('#heading').html('Quá trình xử lí đang chờ bắt đầu...');
+					setTimeout( function(){ location.reload(); }, 3000 );
+				} else if (data.status == 'Uploading') {
+					$('#heading').html('Video đang được upload...');
+					setTimeout( function(){ location.reload(); }, 3000 );
 				}
 			},
 			fail: function() {
