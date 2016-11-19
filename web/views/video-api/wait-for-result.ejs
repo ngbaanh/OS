@@ -38,7 +38,7 @@
 					window.location.replace('/video-api/upload');
 				} else if (data.status == 'Running') {
 					$('#heading').html('Đang xử lí video: ' + data.progress + '%');
-					setTimeout( function(){ location.reload(); }, 3000 );
+					//setTimeout( function(){ location.reload(); }, 3000 );
 				} else if (data.status == "Succeeded") {
 					$('#heading').html('KẾT QUẢ');
 					$('#info').append('Gửi lúc: ' + data.createdDateTime + '<br>');
@@ -47,10 +47,10 @@
 					$('#result').html(jsonOutput);//JSON.stringify(JSON.parse(data.processingResult))
 				} else if (data.status == 'Not Started') {
 					$('#heading').html('Quá trình xử lí đang chờ bắt đầu...');
-					setTimeout( function(){ location.reload(); }, 3000 );
+					//setTimeout( function(){ location.reload(); }, 3000 );
 				} else if (data.status == 'Uploading') {
 					$('#heading').html('Video đang được upload...');
-					setTimeout( function(){ location.reload(); }, 3000 );
+					//setTimeout( function(){ location.reload(); }, 3000 );
 				}
 			},
 			fail: function() {
