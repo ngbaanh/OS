@@ -13,44 +13,46 @@
 	<div class="container">
 		<h1>Upload</h1>
 		<div class="well">
-			<h2>Upload Video File (ajax)</h2>
-			<p class="text text-info">Video sẽ được upload và lưu trữ trên dịch vụ của Wistia trước. Sau đó Asset URL của video sẽ được gửi sang Microsoft Video API để phân tích</p>
+			<h2>Upload Video File</h2>
+			<p class="text text-info">Upload video lên Wistia.</p>
 			<p class="text text-muted">API URL: https://upload.wistia.com</p>
 			<p class="text text-muted">api_password: <%=apiPassword%></p>
-			<input type="text" id="projectId" class="form-control" value="fxipdx3zn1" placeholder="Wistia Project ID">
-			<form id="FormFile" class="form form-horizontal" method="post"
-				  action="https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1"
-				  enctype="multipart/form-data" target="responseFrame">
+			
+			<input type="text" id="projectId" class="form-control" value="fxipdx3zn1" placeholder="*Wistia Project ID"><br>
+			<form id="FormFile" class="form form-horizontal" method="post">
+				<input type="text" name="name" id="name" class="form-control" placeholder="New Video Name">
+				<br>
 				<input type="file" name="file" id="file" class="form-control" value="Choose a file" accept="video/*">
 				<br>
-				<input type="submit" class="btn btn-success" value="Submit">
+				<img src="/icons/spin.gif" id="spinIcon" style="display:none">
+				<input type="button" class="btn btn-success" value="Submit" id="FormFileUploadBtn">
 			</form>
-			<iframe src="" name="responseFrame" id="responseFrame"></iframe>
+			<br>
+			
+			<div id="controlButton" style="display: none">
+					<button type="button" class="btn btn-info" data-toggle="modal" data-target="#ViewVideoModal">Xem lại Video</button> &nbsp;
+					<button type="button" class="btn btn-danger" id="deleteBtn">Xóa</button> &nbsp;
+					<button type="button" class="btn btn-primary" id="sendBtn">Gửi Video sang Form kế tiếp</button> &nbsp;
+			</div>
 		</div>
 		
-		<!--
-		<div class="well">
-			<h2>Upload Video File (direct)</h2>
-			<p class="text text-muted">Action: https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1</p>
-			<form id="_FormFile" class="form form-horizontal" method="post"
-				  action="https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1"
-				  enctype="multipart/form-data">
-				<input type="file" name="file" class="form-control" value="Choose a file" accept="video/*">
-				<br>
-				<input type="submit" class="btn btn-success" value="Submit">
-			</form>
-		</div>
-		-->
+		<div class="well" style="display:none"><pre id="message"></pre></div>
 		
-		<div id="message"></div>
+		<div class="modal fade" id="ViewVideoModal" tabindex="-1" role="dialog" aria-labelledby="ViewVideoModal">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content" id="modalContent"></div>
+			</div>
+		</div>
+		
+		
 		
 		<div class="well">
 			<h2>Upload via URL</h2>
 			<p class="text text-info">Gửi URL video đến Microsoft Video API và chuyển đến giao diện chờ nhận kết quả JSON</p>
-			<p class="text text-muted">Ocp-Apim-Subscription-Key: <%=subKey%></p>
 			<p class="text text-muted">API URL: <%=apiURL%></p>
+			<p class="text text-muted">Ocp-Apim-Subscription-Key: <%=subKey%></p>
 			<form id="FormURL" class="form form-horizontal" method="post">
-				<input type="url" class="form-control" name="url" id="url" value="http://techslides.com/demos/sample-videos/small.mp4" required>
+				<input type="url" id="url" class="form-control" name="url" id="url" value="http://techslides.com/demos/sample-videos/small.mp4" required>
 				<br>
 				<input type="submit" class="btn btn-success" value="Submit">
 			</form>
@@ -63,76 +65,49 @@
 <script type="text/javascript">
 	$(document).ready(function(){	
 		
-		$('#FormFile').on('success.form.fv', function(e) {
-            // Prevent form submission
-            e.preventDefault();
-
-            var $form = $(e.target);
+		$('#FormFileUploadBtn').on('click', function(e) {
+            var form = new FormData();
+			var file = $('#file')[0].files[0];
+			form.append("file", file);
+			form.append("name", $('#FormFile #name').val());
+			$('#FormFileUploadBtn').attr('disabled','disabled');
+			$('#spinIcon').css('display','inline');
 			var params = {
 				api_password : '<%=apiPassword%>', 
 				project_id : $('#projectId').val(), 
 			};
-            $form.ajaxSubmit({
-                // You can change the url option to desired target
-                url: "https://upload.wistia.com?" + $.param(params),
-                processData: false,  // tell jQuery not to process the data
-				contentType: false,  // tell jQuery not to set contentType
-				type: 'POST',
-				data: $form.serialize(),
-                success: function(data, statusText, xhr, $form) {
-                    if (data.error) {
-						alert("Lỗi! Không có kết quả");
-					} else {
-						$('#FormURL #url').val(data.thumbnail.url);
-						alert("Đã nhập Asset URL vào form thứ 2");
-					}
-                },
-				complete: function() {
-					e.preventDefault();
-				}
-            });
-			$('#info').html($('#responseFrame').contents().find("body").html());
-        });
-		
-		/*
-		$( "#FormFile" ).submit(function( event ) {
-			event.preventDefault();
-			var params = {
-				api_password : '<%=apiPassword%>', 
-				project_id : $('#projectId').val(), 
-			};
-			var formData = new FormData($('#FormFile'));
 			$.ajax({
-				url: "https://upload.wistia.com?" + $.param(params),
 				async: true,
-				data: formData,
-				processData: false,  // tell jQuery not to process the data
-				contentType: false,  // tell jQuery not to set contentType
-				type: 'POST',
-				complete: function(data) {
-					if (data.error) {
-						alert("Lỗi! Không có kết quả: " +data.error);
-					} else {
-						$('#FormURL #url').val(data.thumbnail.url);
-						alert("Đã nhập Asset URL vào form thứ 2");
-					}
-				},
+				crossDomain: true,
+				url: "https://upload.wistia.com?" + $.param(params),
+				method: "POST",
+				processData: false,
+				contentType: false,
+				mimeType: "multipart/form-data",
+				dataType: "json",
+				data: form,
 				success: function(data) {
 					if (data.error) {
-						alert("Lỗi! Không có kết quả");
+						alert("Lỗi: " + data.error);
 					} else {
-						$('#FormURL #url').val(data.thumbnail.url);
-						alert("Đã nhập Asset URL vào form thứ 2");
+						$('#controlButton').css('display','block');
+						$('#message').parent().css('display','block');
+						$('#message').text(JSON.stringify(data, null, 2));						
+						var hashedId = data.hashed_id;
+						$('#hashedId').html(hashedId);
+						var embededContent = '<script src="//fast.wistia.com/embed/medias/'+hashedId+'.jsonp" async><\/script><script src="//fast.wistia.com/assets/external/E-v1.js" async><\/script><div class="wistia_responsive_padding" style="padding:57.14% 0 0 0;position:relative;"><div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;"><div class="wistia_embed wistia_async_'+hashedId+' videoFoam=true" style="height:100%;width:100%">&nbsp;</div></div></div>';
+						$('#modalContent').append(embededContent);
 					}
 				},
-				fail: function() {
+				error: function(e) {
 					alert("Gửi Ajax Request thất bại!");
+				},
+				complete: function() {
+					$('#spinIcon').css('display','none');
 				}
 			});
-			return false;
-		});
-		*/
-	   
+			e.preventDefault();
+        });	   
 	   
 		$( "#FormURL" ).submit(function( event ) {
 			var params = {
@@ -157,7 +132,35 @@
 			});
 			event.preventDefault();
 		});
+		
+		$('#deleteBtn').on('click', function(e) {
+			if (!confirm(" Video vừa upload sẽ bị xóa khỏi Wistia. Chắc chắn xóa?")) {
+				return false;
+			}
+			$('#spinIcon').css('display','inline');
+			var params = {
+				api_password : '<%=apiPassword%>', 
+				project_id : $('#projectId').val(), 
+			};
+			$.ajax({
+				url: "https://api.wistia.com/v1/medias/" + $('#hashedId').html() + ".json?" + $.param(params),
+				method: "DELETE",
+				success: function(data) {
+					if (data.hashed_id) {
+						$('#spinIcon').css('display','none');
+						$('#FormFileUploadBtn').removeAttr('disabled');
+						$('#message').text("Đã xóa!");
+						$('#controlButton').css('display','none');
+					}
+				},
+				complete: function(data) {
+					$('#spinIcon').css('display','none');
+				}
+			});
+			e.preventDefault();
+        });	   
 	});
 </script>
+<div style="display:none" id="hashedId"></div>
 </body>
 </html>
