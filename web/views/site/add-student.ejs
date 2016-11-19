@@ -1,0 +1,43 @@
+<html>
+<head>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/jquery.validate.min.js"></script>
+    <script src="/javascripts/script.js"></script>
+</head>
+<body style="background-color: #f2f2f2">
+    <div class="col-md-offset-1 col-md-10 col-sm-12 col-xs-12" style="margin-top: 15px">
+        <div class="box box-success">
+            <h3>ADD STUDENT</h3><hr>
+            <form action="/add-student" method="post" id="form-upload-file">
+                <p><div class="form-inline">
+                    <label class="col-md-2">Student ID: </label>
+                    <input type="text" class="form-control" id="student_ID" name="student_ID">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Student name: </label>
+                    <input type="text" class="form-control" id="student_name" name="student_name">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Date of birth: </label>
+                    <input type="date" class="form-control" id="date" name="date">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Class: </label>
+                    <input type="text" class="form-control" id="class" name="class">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">PersonId: </label>
+                    <input type="text" class="form-control" id="personId" name="personId">
+                </div></p><hr>
+                <p><input type="submit" class="btn btn-success" value="Submit"></p>
+            </form>
+        </div>
+    </div>
+<body>
+</html>
+
+
+

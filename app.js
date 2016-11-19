@@ -24,6 +24,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // routing controllers
 app.get('/', SiteController.homepage);
+app.get('/add-student', SiteController.add_student);
+app.post('/add-student', SiteController.send_student_info);
 app.get('/video-api/upload', ApiController.video_api_upload);
 app.get('/video-api/wait-for-result', ApiController.video_api_wait_for_result);
 app.get('/video-api/test', ApiController.sample_detection);
