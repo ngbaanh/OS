@@ -2,27 +2,53 @@
 <html>
 <head>
     <title>Upload Video File</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="/javascripts/jquery.min.js"></script>
 	<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
     <script src="/javascripts/bootstrap.min.js"></script>
+	<!-- Including jQuery Form plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
 </head>
 <body>
 	<div class="container">
 		<h1>Upload</h1>
-		<p class="text text-muted">Ocp-Apim-Subscription-Key: <%=subKey%></p>
-		<p class="text text-muted">API URL: <%=apiURL%></p>
 		<div class="well">
-			<h2>Upload Video File</h2>
-			<form id="FormFile" class="form form-horizontal" method="post" enctype="multipart/form-data">
-				<input type="file" class="form-control" value="Choose a file" accept="video/*">
+			<h2>Upload Video File (ajax)</h2>
+			<p class="text text-info">Video sẽ được upload và lưu trữ trên dịch vụ của Wistia trước. Sau đó Asset URL của video sẽ được gửi sang Microsoft Video API để phân tích</p>
+			<p class="text text-muted">API URL: https://upload.wistia.com</p>
+			<p class="text text-muted">api_password: <%=apiPassword%></p>
+			<input type="text" id="projectId" class="form-control" value="fxipdx3zn1" placeholder="Wistia Project ID">
+			<form id="FormFile" class="form form-horizontal" method="post"
+				  action="https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1"
+				  enctype="multipart/form-data" target="responseFrame">
+				<input type="file" name="file" id="file" class="form-control" value="Choose a file" accept="video/*">
+				<br>
+				<input type="submit" class="btn btn-success" value="Submit">
+			</form>
+			<iframe src="" name="responseFrame" id="responseFrame"></iframe>
+		</div>
+		
+		<!--
+		<div class="well">
+			<h2>Upload Video File (direct)</h2>
+			<p class="text text-muted">Action: https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1</p>
+			<form id="_FormFile" class="form form-horizontal" method="post"
+				  action="https://upload.wistia.com?api_password=7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38&project_id=fxipdx3zn1"
+				  enctype="multipart/form-data">
+				<input type="file" name="file" class="form-control" value="Choose a file" accept="video/*">
 				<br>
 				<input type="submit" class="btn btn-success" value="Submit">
 			</form>
 		</div>
-
+		-->
+		
+		<div id="message"></div>
+		
 		<div class="well">
 			<h2>Upload via URL</h2>
+			<p class="text text-info">Gửi URL video đến Microsoft Video API và chuyển đến giao diện chờ nhận kết quả JSON</p>
+			<p class="text text-muted">Ocp-Apim-Subscription-Key: <%=subKey%></p>
+			<p class="text text-muted">API URL: <%=apiURL%></p>
 			<form id="FormURL" class="form form-horizontal" method="post">
 				<input type="url" class="form-control" name="url" id="url" value="http://techslides.com/demos/sample-videos/small.mp4" required>
 				<br>
@@ -35,16 +61,79 @@
 	</div>
 	
 <script type="text/javascript">
-	$().ready(function() {
-		$('#data').html( $('#FormURL #url').val() );
-	});
-	
-	$(document).ready(function(){		
-		$( "#FormFile" ).submit(function( event ) {
-			alert( "Still in construction" );
-			event.preventDefault();
-		});
+	$(document).ready(function(){	
 		
+		$('#FormFile').on('success.form.fv', function(e) {
+            // Prevent form submission
+            e.preventDefault();
+
+            var $form = $(e.target);
+			var params = {
+				api_password : '<%=apiPassword%>', 
+				project_id : $('#projectId').val(), 
+			};
+            $form.ajaxSubmit({
+                // You can change the url option to desired target
+                url: "https://upload.wistia.com?" + $.param(params),
+                processData: false,  // tell jQuery not to process the data
+				contentType: false,  // tell jQuery not to set contentType
+				type: 'POST',
+				data: $form.serialize(),
+                success: function(data, statusText, xhr, $form) {
+                    if (data.error) {
+						alert("Lỗi! Không có kết quả");
+					} else {
+						$('#FormURL #url').val(data.thumbnail.url);
+						alert("Đã nhập Asset URL vào form thứ 2");
+					}
+                },
+				complete: function() {
+					e.preventDefault();
+				}
+            });
+			$('#info').html($('#responseFrame').contents().find("body").html());
+        });
+		
+		/*
+		$( "#FormFile" ).submit(function( event ) {
+			event.preventDefault();
+			var params = {
+				api_password : '<%=apiPassword%>', 
+				project_id : $('#projectId').val(), 
+			};
+			var formData = new FormData($('#FormFile'));
+			$.ajax({
+				url: "https://upload.wistia.com?" + $.param(params),
+				async: true,
+				data: formData,
+				processData: false,  // tell jQuery not to process the data
+				contentType: false,  // tell jQuery not to set contentType
+				type: 'POST',
+				complete: function(data) {
+					if (data.error) {
+						alert("Lỗi! Không có kết quả: " +data.error);
+					} else {
+						$('#FormURL #url').val(data.thumbnail.url);
+						alert("Đã nhập Asset URL vào form thứ 2");
+					}
+				},
+				success: function(data) {
+					if (data.error) {
+						alert("Lỗi! Không có kết quả");
+					} else {
+						$('#FormURL #url').val(data.thumbnail.url);
+						alert("Đã nhập Asset URL vào form thứ 2");
+					}
+				},
+				fail: function() {
+					alert("Gửi Ajax Request thất bại!");
+				}
+			});
+			return false;
+		});
+		*/
+	   
+	   
 		$( "#FormURL" ).submit(function( event ) {
 			var params = {
 				// Request parameters

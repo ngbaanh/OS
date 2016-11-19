@@ -1,6 +1,7 @@
 /* ngbaanh */
 var subKey = '6d4c2daabe474357aa15ebf5df19b57c'; // for fast test only, please keep it in DB instead
 var regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
+var apiPassword = '7b6c2586a7a64ea9497bf2ccd094f71b8d0423dfd815a4978b00db5092977d38'; //Wistia API access Token
 
 module.exports = {
 	/* @author: ngbaanh */
@@ -10,7 +11,8 @@ module.exports = {
 		var apiURL = 'https://api.projectoxford.ai/video/v1.0/trackface';
 		res.render('video-api/upload', {
 			apiURL: apiURL, 
-			subKey: subKey
+			subKey: subKey,
+			apiPassword: apiPassword, 
 		});
 	},
 
