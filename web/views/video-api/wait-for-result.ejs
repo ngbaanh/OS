@@ -16,12 +16,13 @@
 			<a href="javascript:location.reload(true)" class="btn btn-success">Refresh kết quả</a>
 		<blockquote class="text text-muted" id="info"></blockquote>
 		<div class="well">
-			<pre id="result" style="height:300px; overflow-y: scroll;"></pre>
+			<pre id="result" style="height:150px; overflow-y: scroll;"></pre>
 			
 		</div>
 		<center>
-			<button id="testBtn" class="btn btn-danger">TEST ME NOW</button>
-			<div class="well" id="resultImages"></div>
+			<button id="testBtn" class="btn btn-warning">SHOW IMAGES</button>
+			<button type="button" id="doBtn" class="btn btn-success" disabled>Send to Face API</button>
+			<div class="row" id="resultImages"></div>
 		</center>
 	</div>
 
@@ -72,8 +73,16 @@
 			$('#resultImages').html('');
 			var urlList = analyzeJSON(url, json);
 			for (i = 0; i<urlList.length; i++) {
-				$('#resultImages').append('<img src="' +urlList[i] + '">');
+				$('#resultImages').append('<div class="col-sm-2"><span class="thumbnail"><img src="' +urlList[i] + '"></span></div>');
 			}
+			$('#doBtn').removeAttr('disabled');
+		});
+		
+		$('#doBtn').click(function () {
+			var url = '<%=uploadedVideoURL%>'; 
+			var op = '<%=operationLocation%>';
+			var params = 'uploadedVideoURL=' +url+'&operationLocation='+op;
+			window.location.replace('/face-api/verify-faces?' + params);
 		});
 		
 		function analyzeJSON(uploadedVideoURL, videoApiJSON) {
