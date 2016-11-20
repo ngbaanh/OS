@@ -1,77 +1,182 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Video-api</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-</head>
+    <title>Compare Person Face</title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/jquery.validate.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/dataTables.bootstrap.min.js"></script>
+    <script src="/javascripts/script.js"></script>
 <body>
-    <button id="check" name="check">Check attendance</button>
+    <div class="container">
+        <div class="row">
+            <h3>Compare Person Face</h3>
+            <div id="statusDetection"></div>
+            <div id="listFaceId" class="well"></div>
+        </div>
+        <div class="row">
+            <div id="statusVerify"></div>
+            <div id="statusCurrentFaceId"></div>
+            <div id="resultVerify" class="well"></div>
+        </div>
+    </div>
+
     <script type="text/javascript">
+        var statusProcessing = "Processing <b>.</b>";
         var listFaceId = [];
+        var intervalDetect;
+        var intervalVerify;
         $(function() {
-            execDetect();
-            $('#check').click(function(){
-                console.log(listFaceId);
-                if (listFaceId!=null) {
-                    for(var i=0;i<listFaceId.length;i++){                    
-                        setTimeout(execVerify(listFaceId[i]), 1000 * i);
-                    }    
-                }   
-            })
+            <%if(listImage.length>0){%>execDetect();<%}%>
         });
+
         //detect face
         function execDetect(){
-            <% listImage.forEach(function(image){ %>                       
+            $("#statusDetection").html(statusProcessing + "(Detecting face from images)");
+            intervalDetect = window.setInterval(execDetect0, 1000);
+        }
+
+        <%
+        for (indexImage = 0; indexImage < listImage.length; indexImage++) {
+            %>
+            function execDetect<%=indexImage%>() {
                 $.ajax({
                     url: "https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true",
                     beforeSend: function(xhrObj){
-                    // Request headers
-                    xhrObj.setRequestHeader("Content-Type","application/json");
-                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
-                },
-                type: "POST",
-                // Request body
-                data: '{"url":"<%=image%>"}'
-            })
-                .done(function(data) {                    
-                    for(var j =0;j< data.length;j++){
-                        listFaceId.push(data[j].faceId);
-                    }                 
-                })
-                .fail(function() {
-                    alert("error");
-                });
-                <% }); %>
-        }
+                        // Request headers
+                        xhrObj.setRequestHeader("Content-Type","application/json");
+                        xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
+                    },
+                    type: "POST",
+                    // Request body
+                    data: '{"url":"<%=listImage[indexImage]%>"}',
+                    success: function (result,status,xhr) {
+                        window.clearInterval(intervalDetect);
 
-        //verify face
-        function execVerify(face_id){            
-            <% for (var idx = 0; idx < students.length; idx++){%> 
-                $.ajax({
-                    url: "https://api.projectoxford.ai/face/v1.0/verify",
-                    beforeSend: function(xhrObj){
-                    // Request headers
-                    xhrObj.setRequestHeader("Content-Type","application/json");
-                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
-                },
-                type: "POST",
-                // Request body
-                data: '{"faceId":"'+face_id+'","personId":"<%=students[idx].personId%>","personGroupId":"opensource1"}'
-                })
-                .done(function(data) {
-                if(data.isIdentical==true){
-                    console.log("<%=students[idx].student_name%>");
-                    console.log(face_id);
+                        for (var indexResult = 0; indexResult < result.length; indexResult++) {
+                            listFaceId.push(result[indexResult].faceId);
+                        }
+                        $("#listFaceId").html('listFaceId: ' + listFaceId);
+                        <%
+                        if (indexImage + 1 == listImage.length) {
+                            %>
+                            $("#listFaceId").append("  ***length = " + listFaceId.length);
+                            $("#statusDetection").html("Detection completed!");
+                            $("#statusVerify").html("Preparing to verify...");
+                            window.setTimeout(execVerify(0), 3000);
+                            <%
+                        } else {
+                            %>
+                            if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                                statusProcessing = 'Processing <b>.</b>';
+                            } else {
+                                statusProcessing += '<b>.</b>';
+                            }
+                            $("#statusDetection").html(statusProcessing + "(Detecting face from images)");
+                            intervalDetect = window.setInterval(execDetect<%=indexImage+1%>, 1000);
+                            <%
+                        }
+                        %>
+                    },
+                    error: function (xhr,status,error) {
+                        if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                            statusProcessing = 'Processing <b>.</b>';
+                        } else {
+                            statusProcessing += '<b>.</b>';
+                        }
+                        $("#statusDetection").html(statusProcessing + "(Detecting face from images)");
                     }
-                })
-                .fail(function() {
-                    console.log("error!");
                 });
+            }
+            <% 
+        }
+        %>
 
-            <% } %>
+
+        var listPersonId = [];
+        <%
+        for (var indexStudent = 0; indexStudent < students.length; indexStudent++) {
+            %>
+            listPersonId.push('<%=students[indexStudent].personId%>');
+            <%
+        }
+        %>
+
+        console.log(listPersonId);
+        
+        //verify face
+        function execVerify(indexOfListFaceId) {
+            $("#statusCurrentFaceId").html("faceId processing: " + listFaceId[indexOfListFaceId]);
+            intervalVerify = window.setInterval(verifyStudent(indexOfListFaceId, listPersonId.length - 1), 1000);
         }
 
-
+        function verifyStudent(indexOfListFaceId, indexOfListPersonId) {
+            $.ajax({
+                url: "https://api.projectoxford.ai/face/v1.0/verify",
+                beforeSend: function(xhrObj) {
+                    // Request headers
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
+                },
+                type: "POST",
+                // Request body
+                data: '{"faceId":"'+listFaceId[indexOfListFaceId]+'","personId":"'+listPersonId[indexOfListPersonId]+'","personGroupId":"opensource1"}',
+                success: function (result,status,xhr) {
+                    console.log(xhr);
+                    window.setTimeout(function (){
+                        window.clearInterval(intervalVerify);
+                        if (result.isIdentical == true) {
+                            $("#resultVerify").append(listPersonId[indexOfListPersonId] + ',');
+                            listPersonId.splice(indexOfListPersonId,1);
+                            if (listPersonId.length == 0) {
+                                $("#statusVerify").html("All done!");
+                                $("#statusCurrentFaceId").html("Process completed");
+                            } else {
+                                if (indexOfListFaceId + 1 == listFaceId.length) {
+                                    $("#statusVerify").html("All done!");
+                                    $("#statusCurrentFaceId").html("Process completed");
+                                } else {
+                                    $("#statusVerify").html("Preparing to verify faceId: " + listFaceId[indexOfListFaceId + 1]);
+                                    execVerify(indexOfListFaceId + 1);
+                                }
+                            }
+                        } else {
+                            if (indexOfListPersonId == 0) {
+                                if (indexOfListFaceId + 1 == listFaceId.length) {
+                                    $("#statusVerify").html("All done!");
+                                    $("#statusCurrentFaceId").html("Process completed");
+                                } else {
+                                    $("#statusVerify").html("Preparing to verify faceId: " + listFaceId[indexOfListFaceId + 1]);
+                                    execVerify(indexOfListFaceId + 1);
+                                }
+                            } else {
+                                $("#statusVerify").html("Preparing to verify personId: " + listPersonId[indexOfListPersonId - 1]);
+                                intervalVerify = window.setInterval(verifyStudent(indexOfListFaceId, indexOfListPersonId - 1), 1000);
+                            }
+                        }
+                    }, 700);
+                },
+                error: function (xhr,status,error) {
+                    console.log(xhr);
+                    var intervalMessage = window.setInterval (function() {
+                        if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                            statusProcessing = 'Processing <b>.</b>';
+                        } else {
+                            statusProcessing += '<b>.</b>';
+                        }
+                        $("#statusVerify").html(statusProcessing + "(Verifying faceId from images and personId of student)");
+                    }, 600);
+                    window.setTimeout(function () {
+                        window.clearInterval(intervalVerify);
+                        window.clearInterval(intervalMessage);
+                        intervalVerify = window.setInterval(verifyStudent(indexOfListFaceId, indexOfListPersonId), 1000);
+                    }, 3000);
+                }
+            });
+        }
     </script>
 </body>
 </html>
