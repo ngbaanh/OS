@@ -1,32 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose');
-mongoose.connect('localhost:27017/OS');
-var Schema = mongoose.Schema;
-
-var StudentSchema = new Schema({
-    student_ID: {
-        type: String,
-        required: true
-    },
-    student_name: {
-        type: String,
-        required: true
-    },
-    date: {
-        type: Date,
-        required: true
-    },
-    class: {
-        type: String,
-        required: true
-    },
-    personId: {
-        type: String,
-        required: true
-    }
-}, {collection: 'student'});
-var Student = mongoose.model('Student', StudentSchema);
+var express = require('express'),
+    router = express.Router(),
+    Student = require('../models/Student');
 
 module.exports = {
     homepage: function(req, res, next) {
@@ -49,5 +23,30 @@ module.exports = {
             }
             res.redirect('/add-student');
         });
+    },
+    table_student: function(req, res, next){
+        Student.find({}, function(err, filteredStudent){
+            if (err) {
+                res.json({
+                    "error": err,
+                    "recordsTotal": 0,
+                    "recordsFiltered": 0,
+                    "data": []
+                });
+            } else {
+                console.log(filteredStudent)
+                var students = [];
+                var start = parseInt(req.body.start);
+                var length = parseInt(req.body.length);
+                for (var i = start; i < start + length && i < filteredStudent.length; i++){
+                    students.push(filteredStudent[i]);
+                }
+                res.json({
+                    "recordsTotal": filteredStudent.length,
+                    "recordsFiltered": filteredStudent.length,
+                    "data": students
+                });
+            }
+        })
     }
 };

@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 
 var SiteController = require('./web/controllers/SiteController');
 var ApiController = require('./web/controllers/ApiController');
@@ -22,8 +23,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+mongoose.connect('localhost:27017/OS');
+db = mongoose.connection;
+
+db.on('error', function () {
+    throw new Error('Unable to connect to MongoDB at ');
+});
+
+db.on('connected', function () {
+    console.log('Connected to MongoDB at localhost:27017/OS');
+});
+
 // routing controllers
 app.get('/', SiteController.homepage);
+app.get('/student-list', SiteController.student_list);
+app.post('/tableStudent', SiteController.table_student);
 app.get('/add-student', SiteController.add_student);
 app.post('/add-student', SiteController.send_student_info);
 app.get('/video-api/upload', ApiController.video_api_upload);

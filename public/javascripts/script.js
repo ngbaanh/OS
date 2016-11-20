@@ -48,4 +48,24 @@ $(function(){
             $(element).closest(".form-group").removeClass("has-error");
         }
     });
+    $('#studentList').DataTable({
+        lengthChange: false,
+        pageLength: 50,
+        processing: true,
+        serverSide: true,
+        searching: false,
+        "scrollX": true,
+        "info": false,
+        "autoWidth": true, 
+        ajax: {
+            url: '/tableStudent',
+            type: 'POST'
+        },
+        columns: [
+            {data: 'student_ID'},
+            {data: 'student_name'},
+            {data: 'date_of_birth'},
+            {data: 'class'}
+        ]
+    })
 });
