@@ -54,7 +54,6 @@ $(function(){
         processing: true,
         serverSide: true,
         searching: false,
-        "scrollX": true,
         "info": false,
         "autoWidth": true, 
         ajax: {
@@ -77,7 +76,14 @@ $(function(){
                     return date.toLocaleDateString(); /* date.getMonth()+1 + '/' + date.getDate() + '/' + date.getFullYear(); */
                 }
             },
-            {data: 'class'}
+            {data: 'class'},
+            {
+                data: 'status',
+                render: function(data){
+                    if (data === 0) return 'Absent';
+                    else return 'Attendant';
+                }
+            }
         ]
     });
     $('#studentList').on('click','tbody tr', function (evt) {
