@@ -14,7 +14,7 @@
                 console.log(listFaceId);
                 if (listFaceId!=null) {
                     for(var i=0;i<listFaceId.length;i++){                    
-                        execVerify(listFaceId[i]);
+                        setTimeout(execVerify(listFaceId[i]), 1000 * i);
                     }    
                 }   
             })
@@ -31,41 +31,44 @@
                 },
                 type: "POST",
                 // Request body
-                data: '{"url":"<%=image%>"}',
+                data: '{"url":"<%=image%>"}'
             })
                 .done(function(data) {                    
                     for(var j =0;j< data.length;j++){
-                        listFaceId.push(data[j].faceId);    
+                        listFaceId.push(data[j].faceId);
                     }                 
                 })
                 .fail(function() {
                     alert("error");
                 });
                 <% }); %>
-                     
-
         }
 
         //verify face
-        function execVerify(face_id){
-            $.ajax({
-                url: "https://api.projectoxford.ai/face/v1.0/verify",
-                beforeSend: function(xhrObj){
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type","application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
-            },
-            type: "POST",
-            // Request body
-            data: '{"faceId":"'+face_id+'","personId":"81208555-e557-48d3-a1c1-d1d42f6cb339","personGroupId":"opensource1"}',
-        })
-            .done(function(data) {
-                console.log(face_id);
-                console.log(data);                            
-            })
-            .fail(function() {
-                alert("error");
-            });
+        function execVerify(face_id){            
+            <% for (var idx = 0; idx < students.length; idx++){%> 
+                $.ajax({
+                    url: "https://api.projectoxford.ai/face/v1.0/verify",
+                    beforeSend: function(xhrObj){
+                    // Request headers
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=key%>");
+                },
+                type: "POST",
+                // Request body
+                data: '{"faceId":"'+face_id+'","personId":"<%=students[idx].personId%>","personGroupId":"opensource1"}'
+                })
+                .done(function(data) {
+                if(data.isIdentical==true){
+                    console.log("<%=students[idx].student_name%>");
+                    console.log(face_id);
+                    }
+                })
+                .fail(function() {
+                    console.log("error!");
+                });
+
+            <% } %>
         }
 
 
