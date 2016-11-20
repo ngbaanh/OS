@@ -83,7 +83,7 @@
                         }
                         $("#status2").html(statusProcessing + "(Getting Result: " + result.status + ")");
                     }
-                    $("#result").html(JSON.parse(JSON.stringify(result)));
+                    $("#result").html(JSON.stringify(result));
                 },
                 error: function (xhr,status,error) {
                     if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
