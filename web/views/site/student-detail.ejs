@@ -1,0 +1,62 @@
+<html>
+<head>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/dataTables.bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.validate.min.js"></script>
+    <script src="/javascripts/script.js"></script>
+</head>
+<body style="background-color: #f2f2f2">
+    <div class="col-md-offset-1 col-md-10 col-sm-12 col-xs-12" style="margin-top: 15px">
+        <div class="box box-success">
+            <h3>STUDENT INFORMATION</h3><hr>
+            <form action="/edit-student" method="post">
+                <p><div class="form-inline">
+                    <label class="col-md-2">Student ID: </label>
+                    <input type="text" style="width: 50%" class="form-control" id="student_ID" name="student_ID" value="<%= student.student_ID %>">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Student name: </label>
+                    <input type="text" style="width: 50%" class="form-control" id="student_name" name="student_name" value="<%= student.student_name %>">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Date of birth: </label>
+                    <%
+                        var date = new Date(student.date);
+                        var dateString = date.getFullYear() + '-' + ((date.getMonth()+1)<10?'0'+(date.getMonth()+1): (date.getMonth()+1)) + '-' + (date.getDate()<10?'0'+date.getDate(): date.getDate());
+                    %>
+                    <input type="date" style="width: 50%" class="form-control" id="date" name="date" value="<%= dateString %>">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Class: </label>
+                    <input type="text" style="width: 50%" class="form-control" id="class" name="class" value="<%= student.class %>">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">PersonId: </label>
+                    <input type="text" style="width: 50%" class="form-control" id="personId" name="personId" value="<%= student.personId %>">
+                </div></p>
+                <p><div class="form-inline">
+                    <label class="col-md-2">Status: </label>
+                    <select class="form-control" style="width: 50%" id="status" name="status" value="<%= student.status %>">
+                        <option>0</option>
+                        <option>1</option>
+                    </select>
+                </div></p><hr>
+                <input type="text" value="<%= student._id %>" id="studentId" name="studentId" hidden>
+                <p>
+                    <input type="submit" class="btn btn-success" value="Edit">
+                    <a href="/student-list"><input type="button" class="btn btn-default" value="Cancel"></a>
+                </p>
+                
+            </form>
+        </div>
+    </div>
+<body>
+</html>
+
+
+
+

@@ -2,8 +2,10 @@
 <head>
     <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
-    <script src="/javascripts/bootstrap.min.js"></script>
     <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/dataTables.bootstrap.min.js"></script>
     <script src="/javascripts/jquery.validate.min.js"></script>
     <script src="/javascripts/script.js"></script>
 </head>
@@ -11,7 +13,7 @@
     <div class="col-md-offset-1 col-md-10 col-sm-12 col-xs-12" style="margin-top: 15px">
         <div class="box box-success">
             <h3>ADD STUDENT</h3><hr>
-            <form action="/add-student" method="post" id="form-upload-file">
+            <form action="/add-student" method="post">
                 <p><div class="form-inline">
                     <label class="col-md-2">Student ID: </label>
                     <input type="text" class="form-control" id="student_ID" name="student_ID">

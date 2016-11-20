@@ -20,9 +20,11 @@ module.exports = {
 	/* wait the API server process the video and get result */
 	video_api_wait_for_result: function(req, res, next) {
 		var operationLocation = req.query.operationLocation;
+		var uploadedVideoURL = req.query.uploadedVideoURL;
 		if(regex.test(operationLocation)){
 			res.render('video-api/wait-for-result', {
 				operationLocation: operationLocation,
+				uploadedVideoURL: uploadedVideoURL,
 				subKey: subKey
 			});
 		} else {
@@ -34,5 +36,21 @@ module.exports = {
 	/* test video api face detection */
 	sample_detection: function(req, res, next) {
 		res.render('video-api/sample_detection');
+	},
+	
+	/* @author: phuc */
+	/* test add person face of face-api  */
+	addPersonFace: function(req, res, next){
+		var key = '70a5f8d52d2d4d34909ddf5f3624782c';
+		res.render('face-api/createPersonFace',{key:key});
+	},
+
+	/* @author: phuc */
+	/* test compare face with face using face-api */
+	comparePersonFace: function(req, res, next){
+		var key = '70a5f8d52d2d4d34909ddf5f3624782c';	
+		var listImage = [];
+		listImage.push("https://scontent-hkg3-1.xx.fbcdn.net/t31.0-8/13909186_1130987973635466_983780621913768657_o.jpg");
+		res.render('face-api/comparePersonFace',{key:key,listImage:listImage});
 	}
 };

@@ -2,22 +2,85 @@
 <head>
     <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
-    <script src="/javascripts/bootstrap.min.js"></script>
     <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/dataTables.bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.validate.min.js"></script>
+    <script src="/javascripts/script.js"></script>
 </head>
 <body style="background-color: #f2f2f2">
     <div class="col-md-offset-1 col-md-10 col-sm-12 col-xs-12" style="margin-top: 15px">
         <div class="box box-success">
             <h3>STUDENT LIST</h3>
-            <table class="table table-hover table-striped" id="studentList">
+            <div class="form-inline">
+                <div class="form-group">
+                    <div class="dropdown" id="selectStudent">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" title="Select" style="width: 70px">
+                            <i class="glyphicon glyphicon-check" style="margin-right: 10px"></i>  
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="selectStudent">
+                            <li><a href="#" id="selectAll">Select all</a></li>
+                            <li><a href="#" id="unselectAll">Unselect all</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-default btn-sm" id="deleteStudent-button" title="Delete" style="width: 8%" data-toggle="modal"><i class="glyphicon glyphicon-trash"></i></button>
+                <div class="modal fade" role="dialog" id="deleteStudent-box1">
+                    <form method="POST" action="student/delete_student">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Delete mail</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Do you want to delete these student?</p>
+                                    <p>Click on "Yes" to continue, "No" to cancel</p>
+                                    <input type="text" id="listStudentId" name="listStudentId" style="width: 100%" hidden>
+                                    <input type="text" id="countStudent" name="countStudent" hidden>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" id="buttonCancelDeleteStudent" data-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-primary" id="buttonConfirmDeleteStudent">Yes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal fade" role="dialog" id="deleteStudent-box2">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Delete student</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>You have not selected any student</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-default btn-sm" title="Refresh" id="refreshButton" style="width: 8%"><i class="glyphicon glyphicon-refresh"></i></button>
+            </div>
+            <hr>
+            <table class="table table-hover table-striped" id="studentList" style="width: 100%">
                 <thead>
-                    <th>Student ID</th>
-                    <th>Student name</th>
-                    <th>Status</th>
+                    <th style="width: 5%"></th>
+                    <th style="width: 20%">Student ID</th>
+                    <th style="width: 20%">Student name</th>
+                    <th style="width: 30%">Date of birth</th>
+                    <th>Class</th>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
+            <form method="get" action="/student-detail" id="getStudentId_form">
+                <input type="text" id="studentId" name="studentId" hidden>
+            </form>
         </div>
     </div>
 <body>
