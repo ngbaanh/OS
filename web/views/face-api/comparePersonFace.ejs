@@ -10,11 +10,14 @@
         var listFaceId = [];
         $(function() {
             execDetect();
-            if (listFaceId.length>0) {
-                for(var i=0;i<listFaceId.length;i++){                    
-                    execVerify(listFaceId[i]);
-                }    
-            }
+            $('#check').click(function(){
+                console.log(listFaceId);
+                if (listFaceId!=null) {
+                    for(var i=0;i<listFaceId.length;i++){                    
+                        execVerify(listFaceId[i]);
+                    }    
+                }   
+            })
         });
         //detect face
         function execDetect(){
@@ -38,7 +41,9 @@
                 .fail(function() {
                     alert("error");
                 });
-                <% }); %>           
+                <% }); %>
+                     
+
         }
 
         //verify face
@@ -62,6 +67,8 @@
                 alert("error");
             });
         }
+
+
     </script>
 </body>
 </html>
