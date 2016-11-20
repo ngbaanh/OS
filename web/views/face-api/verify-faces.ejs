@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face API Verification</title>
+    <script src="/javascripts/jquery.min.js"></script>
+	<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h1 id="heading">Nhận diện và kiểm tra bằng Face API</h1>
+		
+		<div class="btn-group">
+			<a href="/" class="btn btn-default"><i class="glyphicon glyphicon-home"></i></a>
+			<button class="btn btn-danger" id="checkButton">Xem kết quả</button>			
+		</div>
+		<div class="row">
+			<h4>Danh sách sinh viên có mặt</h4>
+			<ul class="list-group" id="attendentList"></ul>
+			
+			<h4>Danh sách sinh viên vắng</h4>
+			<ul class="list-group" id="absentList"></ul>
+		</div>
+		<hr>
+		<h4>Danh sách sinh viên</h4><img src="/icons/spin.gif" id="spin">
+		<ul class="list-group" id="testList"></ul>
+		
+		<img src="/icons/spin.gif" id="spin" style="display:none">
+		<div id="testList2" class="row"></div>
+	</div>
+
+<script type="text/javascript">
+	var listFaceId = [];
+    $().ready(function () {		
+		
+		$('#checkButton').click(function () {
+			var studentList = <%-JSON.stringify(studentList)%>;			
+			$('#testList').html('');
+			for (i = 0; i < studentList.length; i++) {
+				$('#testList').append('<li class="list-group-item">'+studentList[i].student_name+' ('+studentList[i].student_ID+')</li>');
+			} // Nạp danh sách sinh viên vào(in thử hết)
+			
+			$('#spin').css('display', 'block');
+			$.ajax({
+				type: 'GET',
+				url: '<%=operationLocation%>',
+				beforeSend: function(xhrObj){
+					xhrObj.setRequestHeader("Content-Type", "application/json");
+					xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "<%=subKey%>");
+				},
+				success: function(data) {
+					if (data.status == "Succeeded") {
+						var json = JSON.parse(data.processingResult);
+						var imageSources = getImageSources('<%=uploadedVideoURL%>', json); // HERE.............
+						$('#testList2').html('<h4>Một số hình ảnh trong video</h4>');
+						for (i = 0; i < imageSources.length; i++) {
+							$('#testList2').append('<div class="col-sm-3"><span class="thumbnail"><img src="'+imageSources[i]+'"></span></div>');
+						}
+						
+						// Thực hiện kiểm tra các khuôn mặt
+						$('#attendentList').html('');
+						$('#absentList').html('');
+						//listFaceId = detectFaces(imageSources);
+						for (idx = 0; idx < listFaceId.length; idx++) {
+							var timeOutMiliSec = 10000;
+							var faceId = listFaceId[idx];
+							setTimeout(verifyFace(faceId, studentList), timeOutMiliSec);
+						}
+					}
+				},
+				error: function (data) {
+					alert('ERROR!');
+				},
+				complete: function () {
+					$('#spin').css('display', 'none');
+				},
+			});
+		});
+		
+		/* Hàm trả về mảng các URL hình ảnh của từng người có trong video */
+		function getImageSources(uploadedVideoURL, videoApiJSON) {
+			var imageURLs = []; // Danh sách hình ảnh trong Video.
+			if (!videoApiJSON.facesDetected) { //Video không có khuôn mặt nào
+				return imageURLs; // Nghỉ chơi. Vì videoApiJSON.fragments cũng NULL
+			}
+			// Số lượng khuôn mặt xuất hiện trong Video.
+			var numberOfFacesInVideo = videoApiJSON.facesDetected.length;
+			var timeScale = videoApiJSON.timescale;			
+			uploadedVideoURL = uploadedVideoURL.replace(/.bin(.)*/g, '.jpg');
+			var listFaces = videoApiJSON.facesDetected;
+			
+			// Dò tìm trong từng fragment.
+			fragmentLoop: for (fragmentIdx = 0; fragmentIdx < videoApiJSON.fragments.length; fragmentIdx++) {
+				var fragment = videoApiJSON.fragments[fragmentIdx];
+				// Kiểm tra xem fragment hiện tại có event nào không?
+				if (!fragment.events) { // không có thì nhảy sang fragment kế tiếp
+					continue fragmentLoop;
+				} else { // Nếu có tồn tại events
+					var interval = fragment.interval;
+					// Duyệt từng event - nơi khuôn mặt xuất hiện.
+					eventLoop: for (eventIdx = 0; eventIdx < fragment.events.length; eventIdx++) {
+						var e = fragment.events[eventIdx];
+						if (e) {
+							eventItemLoop: for (i = 0; i < e.length; i++) {
+								// Dò từng người trong video.
+								facesLoop: for (faceId = listFaces.length - 1; faceId >= 0 ; faceId--) {
+									if (e[i].id == listFaces[faceId].faceId) { // Nếu event element hiện tại là của người đang xét
+										var stillVideoSecond = (eventIdx * interval + fragment.start) / timeScale;
+										var eventImageURL = uploadedVideoURL + '?video_still_time=' + stillVideoSecond;
+										imageURLs.push(eventImageURL);
+										listFaces.splice(faceId,1);
+										if (listFaces.length == 0) {
+											break fragmentLoop; // Ngừng
+										}
+									}
+								} // .:facesLoop
+							} //.:eventItemLoop:
+						} 
+					} // .:eventLoop      
+				}
+			} // .:fragmentLoop
+			return imageURLs;
+		} // .getImageSources()
+		
+		/* Hàm trả về danh sach faceId của tất cả các hình */
+		function detectFaces(listImageURL) {
+			var timeOut = 10000;
+			for (i = 0; i < listImageURL.length; i++) {
+				setTimeout(function () {
+					$.ajax({
+						url: 'https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true',
+						beforeSend: function(xhrObj){
+							xhrObj.setRequestHeader('Content-Type', 'application/json');
+							xhrObj.setRequestHeader('Ocp-Apim-Subscription-Key', '<%=faceApiKey%>');
+						},
+						type: 'POST',
+						data: '{"url": "'+listImageURL[i]+'"}',
+						success: function (data) {
+							for(j = 0; j < data.length; j++){
+								listFaceId.push(data[j].faceId);
+							}
+						}, 
+					});	
+				}, timeOut);			
+			}
+			return detectFaces;
+		}  // .detectFaces()
+		
+		/* Xác nhận faceId với danh sách của studentList */
+		function verifyFace(faceId, studentList) {
+			console.log('verifyFace');
+			var timeOut = 10000;
+			for (i = 0; i < studentList.length; i++) {
+				$('#spin').css('display', 'block');
+				setTimeout(function () {
+					$.ajax({
+						url: 'https://api.projectoxford.ai/face/v1.0/verify',
+						beforeSend: function(xhrObj) {
+							xhrObj.setRequestHeader('Content-Type', 'application/json');
+							xhrObj.setRequestHeader('Ocp-Apim-Subscription-Key', '<%=faceApiKey%>');
+						},
+						type: 'POST',
+						data: '{"faceId":"'+faceId+'","personId":"'+studentList.personId+'","personGroupId":"opensource1"}',
+						success: function(json) {
+							var item = '<li class="list-group-item">'+studentList[i].student_name+' ('+studentList[i].student_ID+')</li>';
+							if (json.isIdentical) {
+								$('#attendentList').append(item);
+							} else {
+								$('#absentList').append(item);
+							}
+						},
+						error: function() { alert('Lỗi!~~~'); },
+						complete: function() {
+							$('#spin').css('display', 'none');
+						}
+					});
+				}, timeOut);
+			}
+		} // verifyFace()
+	});
+</script>
+</body>
+</html>
