@@ -10,17 +10,17 @@
 <body>
 	<div class="container">
 		<h1 id="heading">Đang đợi kết quả</h1>
-		<p class="text text-muted" id="info">
+		
+			<a href="/" class="btn btn-default"><i class="glyphicon glyphicon-home"></i></a>
 			<a href="/video-api/upload" class="btn btn-primary">Quay lại Upload form</a>
 			<a href="javascript:location.reload(true)" class="btn btn-success">Refresh kết quả</a>
-			<br>
-		</p>
-		<div class="well" style="height:300px; overflow-y: scroll;">
-			<pre id="result"></pre>
+		<blockquote class="text text-muted" id="info"></blockquote>
+		<div class="well">
+			<pre id="result" style="height:300px; overflow-y: scroll;"></pre>
 			
 		</div>
 		<center>
-			<button id="testBtn" class="btn btn-primary">TEST ME NOW</button>
+			<button id="testBtn" class="btn btn-danger">TEST ME NOW</button>
 			<div class="well" id="resultImages"></div>
 		</center>
 	</div>
