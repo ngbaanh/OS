@@ -51,8 +51,8 @@ module.exports = {
 		var key = '70a5f8d52d2d4d34909ddf5f3624782c';
 		var listImage = [];		
 		//listImage.push("https://scontent-hkg3-1.xx.fbcdn.net/t31.0-8/14086255_1230246773672430_8102430862113403910_o.jpg");
-		listImage.push("https://s21.postimg.org/vq4jz79tz/15102150_935615266582396_1132777037_o.jpg");
-		//listImage.push("https://s22.postimg.org/hulmqbhb5/15127402_935615743249015_322149103_o.jpg");
+		//listImage.push("https://s21.postimg.org/vq4jz79tz/15102150_935615266582396_1132777037_o.jpg");
+		listImage.push("https://s22.postimg.org/hulmqbhb5/15127402_935615743249015_322149103_o.jpg");
 		Student.find({}).exec(function(err,students){
 			if (err) {
 				return next(err);
