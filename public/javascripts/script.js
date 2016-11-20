@@ -74,11 +74,19 @@ $(function(){
                 data: 'date',
                 render: function(data){
                     var date = new Date(data);
-                    return date.getMonth()+1 + '/' + date.getDate() + '/' + date.getFullYear();
+                    return date.toLocaleDateString(); /* date.getMonth()+1 + '/' + date.getDate() + '/' + date.getFullYear(); */
                 }
             },
             {data: 'class'}
         ]
+    });
+    $('#studentList').on('click','tbody tr', function (evt) {
+        var $cell=$(evt.target).closest('td');
+        var id = $(this).children().children().data('id');
+        if ($cell.index()>0){
+            $('#studentId').val(id);
+            $('#getStudentId_form').submit();
+        }
     });
     $("#selectAll").click(function(){
         $(".checkbox-student").each(function(){
@@ -113,5 +121,8 @@ $(function(){
             $('#countStudent').val(d); 
             
         }
+    });
+    $('#buttonCancelDeleteStudent').click(function(){
+        $('#listStudentId').val('');
     });
 });

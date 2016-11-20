@@ -56,5 +56,34 @@ module.exports = {
             });
         }
         res.redirect('/student-list');
+    },
+    student_detail: function(req, res, next) {
+        Student.findOne({_id: req.query.studentId}, function(err, student){
+            if (err) {
+                return next(err);
+            } else {
+                res.render('site/student-detail', {student: student});
+            }
+        });
+    },
+    edit_student: function(req, res, next) {
+        Student.findOne({_id: req.body.studentId}, function(err, student){
+            if (err) {
+                return next(err);
+            } else {
+                student.student_ID = req.body.student_ID;
+                student.student_name = req.body.student_name;
+                student.date = req.body.date;
+                student.class = req.body.class;
+                student.status = req.body.status;
+                student.save(function(err, student){
+                    if (err) {
+                        return next(err);
+                    } else {
+                        res.redirect('/student-list');
+                    }
+                });
+            }
+        });
     }
 };
