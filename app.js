@@ -46,6 +46,9 @@ app.post('/edit-student', SiteController.edit_student);
 app.get('/video-api/upload', ApiController.video_api_upload);
 app.get('/video-api/wait-for-result', ApiController.video_api_wait_for_result);
 app.get('/video-api/test', ApiController.sample_detection);
+app.get('/face-api/addPersonFace', ApiController.addPersonFace);
+app.get('/face-api/comparePersonFace', ApiController.comparePersonFace);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
