@@ -85,35 +85,39 @@
 			var numberOfFacesInVideo = videoApiJSON.facesDetected.length;
 			var timeScale = videoApiJSON.timescale;			
 			uploadedVideoURL = uploadedVideoURL.replace(/.bin(.)*/g, '.jpg');
-			// Dò từng người trong video.
-			facesLoop: for (faceId = 0; faceId < numberOfFacesInVideo; faceId++) {
-				// Dò tìm trong từng fragment.
-				fragmentLoop: for (fragmentIdx = 0; fragmentIdx < videoApiJSON.fragments.length; fragmentIdx++) {
-					var fragment = videoApiJSON.fragments[fragmentIdx];
-					// Kiểm tra xem fragment hiện tại có event nào không?
-					if (!fragment.events) { // không có thì nhảy sang fragment kế tiếp
-						continue fragmentLoop;
-					} else { // Nếu có tồn tại events
-						var interval = fragment.interval;
-						// Duyệt từng event - nơi khuôn mặt xuất hiện.
-						eventLoop: for (eventIdx = 0; eventIdx < fragment.events.length; eventIdx++) {
-							var e = fragment.events[eventIdx];
-							if (e) {
-								eventItemLoop: for (i = 0; i < e.length; i++) {
-									if (e[i].id == faceId) { // Nếu event element hiện tại là của người đang xét
+			var listFaces = videoApiJSON.facesDetected;
+			
+			// Dò tìm trong từng fragment.
+			fragmentLoop: for (fragmentIdx = 0; fragmentIdx < videoApiJSON.fragments.length; fragmentIdx++) {
+				var fragment = videoApiJSON.fragments[fragmentIdx];
+				// Kiểm tra xem fragment hiện tại có event nào không?
+				if (!fragment.events) { // không có thì nhảy sang fragment kế tiếp
+					continue fragmentLoop;
+				} else { // Nếu có tồn tại events
+					var interval = fragment.interval;
+					// Duyệt từng event - nơi khuôn mặt xuất hiện.
+					eventLoop: for (eventIdx = 0; eventIdx < fragment.events.length; eventIdx++) {
+						var e = fragment.events[eventIdx];
+						if (e) {
+							eventItemLoop: for (i = 0; i < e.length; i++) {
+								// Dò từng người trong video.
+								facesLoop: for (faceId = listFaces.length - 1; faceId >= 0 ; faceId--) {
+									if (e[i].id == listFaces[faceId].faceId) { // Nếu event element hiện tại là của người đang xét
 										var stillVideoSecond = (eventIdx * interval + fragment.start) / timeScale;
 										var eventImageURL = uploadedVideoURL + '?video_still_time=' + stillVideoSecond;
 										imageURLs.push(eventImageURL);
-										continue facesLoop; // Kiểm tra xong thì nhảy qua kiểm tra khuôn mặt kế tiếp
-									} else { // Không phải thì kiểm tra element kế tiếp
-										continue eventItemLoop;
+										listFaces.splice(faceId,1);
+										if (listFaces.length == 0) {
+											break fragmentLoop; // Ngừng
+										}
 									}
-								} //.:eventItemLoop:
-							} 
-						} // .:eventLoop      
-					}
-				} // .:fragmentLoop
-			} // .:facesLoop
+								} // .:facesLoop
+							} //.:eventItemLoop:
+						} 
+					} // .:eventLoop      
+				}
+			} // .:fragmentLoop
+			
 			return imageURLs;
 		} // .analyzeJSON()
 	});
