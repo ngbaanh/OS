@@ -2,55 +2,99 @@
 <html>
 <head>
     <title>GetOperation</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/jquery.validate.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.dataTables.min.js"></script>
+    <script src="/javascripts/dataTables.bootstrap.min.js"></script>
+    <script src="/javascripts/script.js"></script>
 </head>
 <body>
-<div id="operationId"></div>
-<div><button id="getResult">Get Result</button></div>
-<div id="content"></div>
+<div class="container">
+    <div class="row">
+        <h3>Testing Face Detection</h3>
+        <div id="status1"></div>
+        <div id="operationId" class="well"></div>
+    </div>
+    <div class="row">
+        <div id="status2"></div>
+        <div id="result" class="well"></div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(function() {
-        $.ajax({
-            url: "https://api.projectoxford.ai/video/v1.0/trackface",
-            beforeSend: function(xhrObj){
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type","application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","f9c73541ee204d098076cd7bc8f47269");
-            },
-            type: "POST",
-            data: '{"url": "http://techslides.com/demos/sample-videos/small.mp4"}',
-            success: function (result,status,xhr) {
-                var operationId = JSON.stringify(xhr.getResponseHeader("Operation-Location"));
+        var statusProcessing = "Processing <b>.</b>";
+        var myVar = window.setInterval(waitProcessing, 1000);
+        var myVar2;
+        var operationId;
+        function waitProcessing() {
+            $.ajax({
+                url: "https://api.projectoxford.ai/video/v1.0/trackface",
+                beforeSend: function(xhrObj){
+                    // Request headers
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","f9c73541ee204d098076cd7bc8f47269");
+                },
+                type: "POST",
+                data: '{"url": "http://techslides.com/demos/sample-videos/small.mp4"}',
+                success: function (result,status,xhr) {
+                    window.clearInterval(myVar);
+                    $("#status1").html("Get Operation-Location success!");
 
-                var params = {
-                    //request params
-                };
+                    operationId = JSON.stringify(xhr.getResponseHeader("Operation-Location"));
 
-                operationId = operationId.substring(operationId.lastIndexOf("/") + 1, operationId.length - 1);
-                $("#operationId").html("operationId: " + operationId);
-              
-                $("#getResult").click(function() {
-                    $.ajax({
-                        url: "https://api.projectoxford.ai/video/v1.0/operations/" + operationId,
-                        beforeSend: function(xhrObj){
-                            // Request headers
-                            xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","f9c73541ee204d098076cd7bc8f47269");    
-                        },
-                        type: "GET",
-                        success: function (result,status,xhr) {
-                            $("#content").html(JSON.stringify(result));
-                        },
-                        error: function (xhr,status,error) {
-                            alert("Please wait for 1 minute for resend new request!");
+                    operationId = operationId.substring(operationId.lastIndexOf("/") + 1, operationId.length - 1);
+                    $("#operationId").html("OperationId: " + operationId);
+                    $("#status2").html("Preparing to get result...");
+                    
+                    myVar2 = window.setInterval(getResult, 2000);
+                },
+                error: function (xhr,status,error) {
+                    if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                        statusProcessing = 'Processing <b>.</b>';
+                    } else {
+                        statusProcessing += '<b>.</b>';
+                    }
+                    $("#status1").html(statusProcessing + "(Getting Operation-Location)");
+                }
+            });
+        };
+
+        function getResult() {
+            $.ajax({
+                url: "https://api.projectoxford.ai/video/v1.0/operations/" + operationId,
+                beforeSend: function(xhrObj){
+                    // Request headers
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","f9c73541ee204d098076cd7bc8f47269");    
+                },
+                type: "GET",
+                success: function (result,status,xhr) {
+                    if (result.status == "Succeeded") {
+                        window.clearInterval(myVar2);
+                        $("#status2").html("<b>Successfully!</b>");
+                    } else {
+                        if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                            statusProcessing = 'Processing <b>.</b>';
+                        } else {
+                            statusProcessing += '<b>.</b>';
                         }
-                    });
-                });
-            },
-            error: function (xhr,status,error) {
-                alert("Please wait for 1 minute for resend new request!");
-            }
-        });
+                        $("#status2").html(statusProcessing + "(Getting Result: " + result.status + ")");
+                    }
+                    $("#result").html(JSON.stringify(result));
+                },
+                error: function (xhr,status,error) {
+                    if (statusProcessing == 'Processing <b>.</b><b>.</b><b>.</b>') {
+                        statusProcessing = 'Processing <b>.</b>';
+                    } else {
+                        statusProcessing += '<b>.</b>';
+                    }
+                    $("#status2").html(statusProcessing + "(Getting Result)");
+                }
+            });
+        }
     });
 </script>
 </body>
