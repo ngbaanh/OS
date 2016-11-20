@@ -20,9 +20,11 @@ module.exports = {
 	/* wait the API server process the video and get result */
 	video_api_wait_for_result: function(req, res, next) {
 		var operationLocation = req.query.operationLocation;
+		var uploadedVideoURL = req.query.uploadedVideoURL;
 		if(regex.test(operationLocation)){
 			res.render('video-api/wait-for-result', {
 				operationLocation: operationLocation,
+				uploadedVideoURL: uploadedVideoURL,
 				subKey: subKey
 			});
 		} else {

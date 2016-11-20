@@ -191,7 +191,7 @@
 				data: '{ "url" : "'+ $('#FormURL #url').val() +'"}',
 				success: function(data, status, request) {
 					$('#info').append('Đang gửi dữ liệu...').delay(5000);
-					window.location.replace('/video-api/wait-for-result?operationLocation=' +request.getResponseHeader('Operation-Location'));
+					window.location.replace('/video-api/wait-for-result?operationLocation=' +request.getResponseHeader('Operation-Location') +'&uploadedVideoURL=' + $('#FormURL #url').val());
 				},
 				fail: function() {
 					alert('Lỗi! Coi lại dữ liệu');
