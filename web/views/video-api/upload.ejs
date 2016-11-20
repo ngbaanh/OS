@@ -42,9 +42,10 @@
 								<input type="button" class="btn btn-success btn-block" value="Submit" id="FormFileUploadBtn">
 							</div>
 							<div id="controlButton" style="display: none" class="col-sm-6">
-									<button type="button" class="btn btn-info" data-toggle="modal" data-target="#ViewVideoModal"><i class="glyphicon glyphicon-play"></i> Xem Video</button> &nbsp;
-									<button type="button" class="btn btn-danger" id="deleteBtn">Xóa</button> &nbsp;
-									<button type="button" class="btn btn-primary" id="getInfoBtn"><i class="glyphicon glyphicon-eye-open"></i> Lấy thông tin</button> &nbsp;
+									<button type="button" class="btn btn-info" data-toggle="modal" data-target="#ViewVideoModal"><i class="glyphicon glyphicon-play"></i></button> &nbsp;
+									<button type="button" class="btn btn-danger" id="deleteBtn"><i class="glyphicon glyphicon-trash"></i></button> &nbsp;
+									<button type="button" class="btn btn-default" id="getInfoBtn"><i class="glyphicon glyphicon-eye-open"></i></button> &nbsp;
+									<button type="button" class="btn btn-primary" id="sendURL"><i class="glyphicon glyphicon-arrow-down"></i> SendURL</button> &nbsp;
 							</div>
 						</div>
 					</form>
@@ -96,7 +97,14 @@
 						</center><br>
 						<div class="row">
 							<h4>Remote Upload Link</h4>
-							<input value="" class="form-control" readonly="readonly" id="videoLink">
+							<span class="input-group">
+								<input value="" class="form-control" readonly="readonly" id="videoLink">
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" onClick="sendVideoURL()"><i class="glyphicon glyphicon-arrow-down"></i> SendURL</button>
+								</span>
+								
+							</span>
+							
 						</div><br>
 						<hr>
 						<button data-toggle="collapse" data-target="#videoURLs" class="btn btn-success">Mở rộng </button>
@@ -107,22 +115,20 @@
 				</div>
 			</div>
 		</div>
-		
-		
-		
+
 		<div class="well">
 			<h2>Upload via URL <small>(checking...)</small></h2>
 			<p class="text text-info">Gửi URL video đến Microsoft Video API và chuyển đến giao diện chờ nhận kết quả JSON</p>
 			<p class="text text-muted">API URL: <%=apiURL%></p>
 			<p class="text text-muted">Ocp-Apim-Subscription-Key: <%=subKey%></p>
 			<form id="FormURL" class="form form-horizontal" method="post">
-				<input type="url" id="url" class="form-control" name="url" id="url" value="http://techslides.com/demos/sample-videos/small.mp4" required>
-				<br>
-				<input type="submit" class="btn btn-success" value="Submit">
+				<div class="input-group">
+					<input type="url" id="url" class="form-control" name="url" id="url" placeholder="http://techslides.com/demos/sample-videos/small.mp4" required>
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="Upload và chờ kết quả">
+					</span>
+				</div>
 			</form>
-		</div>
-		
-		<div class="well" id="info">
 		</div>
 	</div>
 	
@@ -162,7 +168,7 @@
 						$('#message').text(JSON.stringify(data, null, 2));						
 						var hashedId = data.hashed_id;
 						$('#hashedId').html(hashedId);
-						var embededContent = '<script src="//fast.wistia.com/embed/medias/'+hashedId+'.jsonp" async><\/script><script src="//fast.wistia.com/assets/external/E-v1.js" async><\/script><div class="wistia_responsive_padding" style="padding:57.14% 0 0 0;position:relative;"><div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;"><div class="wistia_embed wistia_async_'+hashedId+' videoFoam=true" style="height:100%;width:100%">&nbsp;</div></div></div>';
+						var embededContent = '<script src="\/\/fast.wistia.com/embed/medias/'+hashedId+'.jsonp" async><\/script><script src="\/\/fast.wistia.com/assets/external/E-v1.js" async><\/script><div class="wistia_responsive_padding" style="padding:57.14% 0 0 0;position:relative;"><div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;"><div class="wistia_embed wistia_async_'+hashedId+' videoFoam=true" style="height:100%;width:100%">&nbsp;</div></div></div>';
 						$('#modalContent').html(embededContent);
 					}
 				},
@@ -204,9 +210,7 @@
 		$('#deleteBtn').on('click', function(e) {
 			deleteVideo();
         });
-		
-		
-		
+
 		// File Form Get Info Button Click
 		$('#getInfoBtn').on('click', function(e) {
 			viewVideoInfo();
@@ -226,12 +230,10 @@
 			loadMediaList();
 		});
 		
-		
-		
-		
-		
-		
-		
+		// Form File Send URL button
+		$('#sendURL').click(function (e) {
+			sendVideoURL();
+		});
 	});
 	
 	function loadMediaList() {
@@ -349,6 +351,35 @@
 			$('#hashedId').text($(element).first().text());
 			viewVideoInfo(null);
 			loadMediaList();
+		});
+	}
+	
+	function sendVideoURL() {
+		$().ready(function () {
+			$('#spinIcon').css('display','inline');
+			$('#InfoModal #videoAssets').html('');
+			var params = {
+				api_password : $('#apiPassword').val(), 
+				project_id : $('#projectId').val(), 
+			};
+			$.ajax({
+				url: 'https://api.wistia.com/v1/medias/' + $('#hashedId').html() + '.json?' + $.param(params),
+				method: 'GET',
+				success: function(data) {
+					if (data.status == 'ready') {
+						$('#spinIcon').css('display','none');
+						$('#url').val(data.assets[0].url + '/file.mp4');
+						$('#InfoModal').modal('hide');
+						$('html, body').animate({ scrollTop: $("#FormURL").offset().top }, 1000);
+					} else {
+						alert('Video chưa sẵn sàng, thử lại sau');
+						return false;
+					}
+				},
+				complete: function(data) {
+					$('#spinIcon').css('display','none');
+				}, 
+			});
 		});
 	}
 </script>
