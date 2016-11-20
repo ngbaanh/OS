@@ -64,8 +64,8 @@ $(function(){
         columns: [
             {data: 'student_ID'},
             {data: 'student_name'},
-            {data: 'date_of_birth'},
+            {data: 'date'},
             {data: 'class'}
         ]
-    })
+    });
 });

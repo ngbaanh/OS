@@ -1,6 +1,4 @@
-var express = require('express'),
-    router = express.Router(),
-    Student = require('../models/Student');
+var Student = require('../models/Student');
 
 module.exports = {
     homepage: function(req, res, next) {
@@ -17,6 +15,7 @@ module.exports = {
     },
     send_student_info: function(req, res, next){
         var student = new Student(req.body);
+        student.status = 0;
         student.save(function(err, student){
             if (err) {
                 console.log(err);
@@ -27,6 +26,7 @@ module.exports = {
     table_student: function(req, res, next){
         Student.find({}, function(err, filteredStudent){
             if (err) {
+                console.log(err);
                 res.json({
                     "error": err,
                     "recordsTotal": 0,
@@ -34,7 +34,7 @@ module.exports = {
                     "data": []
                 });
             } else {
-                console.log(filteredStudent)
+                console.log('filteredStudent');
                 var students = [];
                 var start = parseInt(req.body.start);
                 var length = parseInt(req.body.length);
@@ -47,6 +47,6 @@ module.exports = {
                     "data": students
                 });
             }
-        })
+        });
     }
 };

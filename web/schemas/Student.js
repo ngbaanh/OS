@@ -23,6 +23,10 @@ Schema = new mongoose.Schema({
     personId: {
         type: String,
         required: true
+    },
+    status: {
+        type: Number,
+        required: true
     }
 });
 Schema.pre('save', function (next) {
