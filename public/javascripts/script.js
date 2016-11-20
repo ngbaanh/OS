@@ -62,10 +62,56 @@ $(function(){
             type: 'POST'
         },
         columns: [
+            {
+                data: '_id',
+                render: function(data) {
+                    return '<input type="checkbox" name="id[]" class="checkbox-student" data-id="'+data+'">';
+                }
+            },
             {data: 'student_ID'},
             {data: 'student_name'},
-            {data: 'date'},
+            {
+                data: 'date',
+                render: function(data){
+                    var date = new Date(data);
+                    return date.getMonth()+1 + '/' + date.getDate() + '/' + date.getFullYear();
+                }
+            },
             {data: 'class'}
         ]
+    });
+    $("#selectAll").click(function(){
+        $(".checkbox-student").each(function(){
+            this.checked = true;
+        });
+    });
+    $("#unselectAll").click(function(){
+        $(".checkbox-student").each(function(){
+            this.checked = false;
+        });
+    });
+    $("#deleteStudent-button").click(function(){
+        var b =0;
+        $(".checkbox-student").each(function(){
+            if (this.checked){
+                b++;
+            }
+        });
+        if (b===0){
+            $(this).attr('data-target',"#deleteStudent-box2");
+        }
+        else{
+            $(this).attr('data-target',"#deleteStudent-box1");
+            var d =0;
+            $('.checkbox-student').each(function(){
+                if (this.checked){
+                    var id = $(this).data('id');
+                    $('#listStudentId').val($('#listStudentId').val()+id+';');
+                    d++;
+                }
+            });
+            $('#countStudent').val(d); 
+            
+        }
     });
 });

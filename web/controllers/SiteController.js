@@ -26,7 +26,6 @@ module.exports = {
     table_student: function(req, res, next){
         Student.find({}, function(err, filteredStudent){
             if (err) {
-                console.log(err);
                 res.json({
                     "error": err,
                     "recordsTotal": 0,
@@ -34,7 +33,6 @@ module.exports = {
                     "data": []
                 });
             } else {
-                console.log('filteredStudent');
                 var students = [];
                 var start = parseInt(req.body.start);
                 var length = parseInt(req.body.length);
@@ -48,5 +46,15 @@ module.exports = {
                 });
             }
         });
+    },
+    delete_student: function(req, res, next) {
+        for(var i = 0; i < req.body.countStudent; i++) {
+            Student.remove({_id: req.body.listStudentId.split(';')[i]}).exec(function(err) {
+                if (err) {
+                    return next(err);
+                }
+            });
+        }
+        res.redirect('/student-list');
     }
 };
