@@ -15,25 +15,27 @@
 			<a href="javascript:location.reload(true)" class="btn btn-success">Refresh kết quả</a>
 			<br>
 		</p>
-		<div class="well">
+		<div class="well" style="height:300px; overflow-y: scroll;">
 			<pre id="result"></pre>
 			
 		</div>
+		<center>
+			<button id="testBtn" class="btn btn-primary">TEST ME NOW</button>
+			<div class="well" id="resultImages"></div>
+		</center>
 	</div>
+
 <script type="text/javascript">
-    $(function() {
-        $.ajax({
+    $().ready(function () {
+		$.ajax({
 			type: 'GET',
-            url: "<%=operationLocation%>",
-            beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Content-Type","application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=subKey%>");
-            },
+			url: "<%=operationLocation%>",
+			beforeSend: function(xhrObj){
+				xhrObj.setRequestHeader("Content-Type","application/json");
+				xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","<%=subKey%>");
+			},
 			success: function(data) {
-				if (data.error) {
-					alert(data.error.code + ': ' + data.error.message);
-					window.location.replace('/video-api/upload');
-				} else if (data.status == "Failed") {
+				if (data.status == "Failed") {
 					alert('Thao tác thất bại! Không có kết quả');
 					window.location.replace('/video-api/upload');
 				} else if (data.status == 'Running') {
@@ -44,7 +46,7 @@
 					$('#info').append('Gửi lúc: ' + data.createdDateTime + '<br>');
 					$('#info').append('Hoàn thành lúc: ' + data.lastActionDateTime + '<br>');
 					var jsonOutput = JSON.stringify(JSON.parse(data.processingResult),null,2);
-					$('#result').html(jsonOutput);//JSON.stringify(JSON.parse(data.processingResult))
+					$('#result').html(jsonOutput);
 				} else if (data.status == 'Not Started') {
 					$('#heading').html('Quá trình xử lí đang chờ bắt đầu...');
 					//setTimeout( function(){ location.reload(); }, 3000 );
@@ -53,13 +55,70 @@
 					//setTimeout( function(){ location.reload(); }, 3000 );
 				}
 			},
+			error: function (data) {
+				alert('ERROR! Chờ 1 phút rồi quay lại đê!');
+				//window.location.replace('/video-api/upload');
+			},
 			fail: function() {
 				alert("error");
 			}
-        });
-    });
+		});
+			
+			
+		$('#testBtn').click(function () {
+			var url = '<%=uploadedVideoURL%>'; 
+			var jsonData = $('#result').text();
+			var json = JSON.parse(jsonData);
+			$('#resultImages').html('');
+			var urlList = analyzeJSON(url, json);
+			for (i = 0; i<urlList.length; i++) {
+				$('#resultImages').append('<img src="' +urlList[i] + '">');
+			}
+		});
+		
+		function analyzeJSON(uploadedVideoURL, videoApiJSON) {
+			var imageURLs = []; // Danh sách hình ảnh trong Video.
+			if (!videoApiJSON.facesDetected) { //Video không có khuôn mặt nào
+				return imageURLs; // Nghỉ chơi. Vì videoApiJSON.fragments cũng NULL
+			}
+			// Số lượng khuôn mặt xuất hiện trong Video.
+			var numberOfFacesInVideo = videoApiJSON.facesDetected.length;
+			var timeScale = videoApiJSON.timescale;			
+			uploadedVideoURL = uploadedVideoURL.replace(/.bin(.)*/g, '.jpg');
+			// Dò từng người trong video.
+			facesLoop: for (faceId = 0; faceId < numberOfFacesInVideo; faceId++) {
+				// Dò tìm trong từng fragment.
+				fragmentLoop: for (fragmentIdx = 0; fragmentIdx < videoApiJSON.fragments.length; fragmentIdx++) {
+					var fragment = videoApiJSON.fragments[fragmentIdx];
+					// Kiểm tra xem fragment hiện tại có event nào không?
+					if (!fragment.events) { // không có thì nhảy sang fragment kế tiếp
+						continue fragmentLoop;
+					} else { // Nếu có tồn tại events
+						var interval = fragment.interval;
+						// Duyệt từng event - nơi khuôn mặt xuất hiện.
+						eventLoop: for (eventIdx = 0; eventIdx < fragment.events.length; eventIdx++) {
+							var e = fragment.events[eventIdx];
+							if (e) {
+								eventItemLoop: for (i = 0; i < e.length; i++) {
+									if (e[i].id == faceId) { // Nếu event element hiện tại là của người đang xét
+										var stillVideoSecond = (eventIdx * interval + fragment.start) / timeScale;
+										var eventImageURL = uploadedVideoURL + '?video_still_time=' + stillVideoSecond;
+										imageURLs.push(eventImageURL);
+										continue facesLoop; // Kiểm tra xong thì nhảy qua kiểm tra khuôn mặt kế tiếp
+									} else { // Không phải thì kiểm tra element kế tiếp
+										continue eventItemLoop;
+									}
+								} //.:eventItemLoop:
+							} 
+						} // .:eventLoop      
+					}
+				} // .:fragmentLoop
+			} // .:facesLoop
+			return imageURLs;
+		} // .analyzeJSON()
+	});
+	
+	
 </script>
-
-
 </body>
 </html>
