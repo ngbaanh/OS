@@ -24,6 +24,9 @@
 			<button type="button" id="doBtn" class="btn btn-success" disabled>Send to Face API</button>
 			<div class="row" id="resultImages"></div>
 		</center>
+
+		<form id="form-compare-person-face" class="hidden" action="/face-api/comparePersonFace" method="POST">
+		</form>
 	</div>
 
 <script type="text/javascript">
@@ -57,7 +60,7 @@
 				}
 			},
 			error: function (data) {
-				alert('ERROR! Chờ 1 phút rồi quay lại đê!');
+				alert('ERROR! Please wait for 1 minute!');
 				//window.location.replace('/video-api/upload');
 			},
 			fail: function() {
@@ -74,15 +77,13 @@
 			var urlList = analyzeJSON(url, json);
 			for (i = 0; i<urlList.length; i++) {
 				$('#resultImages').append('<div class="col-sm-2"><span class="thumbnail"><img src="' +urlList[i] + '"></span></div>');
+				$("#form-compare-person-face").append('<input type="" name="imageURL" value="' + urlList[i] + '">');
 			}
 			$('#doBtn').removeAttr('disabled');
 		});
 		
 		$('#doBtn').click(function () {
-			var url = '<%=uploadedVideoURL%>'; 
-			var op = '<%=operationLocation%>';
-			var params = 'uploadedVideoURL=' +url+'&operationLocation='+op;
-			window.location.replace('/face-api/verify-faces?' + params);
+			$("#form-compare-person-face").submit();
 		});
 		
 		function analyzeJSON(uploadedVideoURL, videoApiJSON) {

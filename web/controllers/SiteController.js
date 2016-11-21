@@ -119,8 +119,8 @@ module.exports = {
                 }
                 console.log(html);
                 var mailOptions = {
-                    from: 'Ngoc Anh', // sender address
-                    to: 'ngocanh12t3bkdn@gmail.com', // list of receivers
+                    from: 'Video-Face API Verify', // sender address
+                    to: 'qilytquang@gmail.com', // list of receivers
                     subject: 'Check attendant', // Subject line
                     text: text, // plaintext body
                     html: 
