@@ -27,7 +27,7 @@
     </div>
 
     <script type="text/javascript">
-        var statusProcessing = "Processing <b>.</b>";
+        var statusProcessing = "Processing <b>.</b><b>.</b><b>.</b>";
         var listFaceId = [];
         var intervalDetect;
         var intervalVerify;
@@ -156,6 +156,7 @@
                                 if (indexOfListFaceId + 1 == listFaceId.length) {
                                     $("#statusVerify").html("All done!");
                                     $("#statusCurrentFaceId").html("Process completed");
+                                    $("#form-submit-indentical-personId").submit();
                                 } else {
                                     $("#statusVerify").html("Preparing to verify faceId: " + listFaceId[indexOfListFaceId + 1]);
                                     execVerify(indexOfListFaceId + 1);
