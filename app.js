@@ -49,6 +49,7 @@ app.get('/video-api/wait-for-result', ApiController.video_api_wait_for_result);
 app.get('/video-api/test', ApiController.sample_detection);
 app.get('/face-api/addPersonFace', ApiController.addPersonFace);
 app.get('/face-api/comparePersonFace', ApiController.comparePersonFace);
+app.post('/face-api/submit-indentical-personId', ApiController.submitIndenticalPersonId);
 app.post('/face-api/verify-faces', ApiController.verifyFaces);
 app.get('/face-api/verify-faces', ApiController.verifyFaces);
 

@@ -22,6 +22,8 @@
             <div id="statusCurrentFaceId"></div>
             <div id="resultVerify" class="well"></div>
         </div>
+        <form id="form-submit-indentical-personId" class="hidden" action="/face-api/submit-indentical-personId" method="POST">
+        </form>
     </div>
 
     <script type="text/javascript">
@@ -76,7 +78,7 @@
                                 statusProcessing += '<b>.</b>';
                             }
                             $("#statusDetection").html(statusProcessing + "(Detecting face from images)");
-                            intervalDetect = window.setInterval(execDetect<%=indexImage+1%>, 1000);
+                            intervalDetect = window.setInterval(execDetect<%=indexImage+1%>, 2000);
                             <%
                         }
                         %>
@@ -105,6 +107,8 @@
         }
         %>
 
+        var listIdenticalPersonId = [];
+
         console.log(listPersonId);
         
         //verify face
@@ -129,15 +133,19 @@
                     window.setTimeout(function (){
                         window.clearInterval(intervalVerify);
                         if (result.isIdentical == true) {
-                            $("#resultVerify").append(listPersonId[indexOfListPersonId] + ',');
+                            $("#form-submit-indentical-personId").append('<input type="text" name="identicalPersonId" value="' + listPersonId[indexOfListPersonId] + '">');
+                            listIdenticalPersonId.push(listPersonId[indexOfListPersonId]);
+                            $("#resultVerify").html(listIdenticalPersonId + '');
                             listPersonId.splice(indexOfListPersonId,1);
                             if (listPersonId.length == 0) {
                                 $("#statusVerify").html("All done!");
                                 $("#statusCurrentFaceId").html("Process completed");
+                                $("#form-submit-indentical-personId").submit();
                             } else {
                                 if (indexOfListFaceId + 1 == listFaceId.length) {
                                     $("#statusVerify").html("All done!");
                                     $("#statusCurrentFaceId").html("Process completed");
+                                    $("#form-submit-indentical-personId").submit();
                                 } else {
                                     $("#statusVerify").html("Preparing to verify faceId: " + listFaceId[indexOfListFaceId + 1]);
                                     execVerify(indexOfListFaceId + 1);
